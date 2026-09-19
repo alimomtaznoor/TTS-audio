@@ -1,117 +1,130 @@
+# AI Audio Generator
 
-<img width="1200" alt="cb-big2" src="https://github.com/user-attachments/assets/bd8c5f03-e91d-4ee5-b680-57355da204d1" />
+A Python-based text-to-speech application built using the open-source **Chatterbox TTS** model. This project explores AI-powered speech generation, voice conditioning, and expressive audio synthesis.
 
-# Chatterbox TTS
+## Features
 
-[![Alt Text](https://img.shields.io/badge/listen-demo_samples-blue)](https://resemble-ai.github.io/chatterbox_demopage/)
-[![Alt Text](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/ResembleAI/Chatterbox)
-[![Alt Text](https://static-public.podonos.com/badges/insight-on-pdns-sm-dark.svg)](https://podonos.com/resembleai/chatterbox)
-[![Discord](https://img.shields.io/discord/1377773249798344776?label=join%20discord&logo=discord&style=flat)](https://discord.gg/rJq9cRJBJ6)
+- Text-to-speech generation using Chatterbox TTS
+- Zero-shot voice conditioning using an audio reference
+- Adjustable speech expressiveness
+- WAV audio generation
+- Python-based inference workflow
+- GPU-accelerated inference with CUDA
+- Built-in watermarking provided by the underlying model
 
-_Made with ♥️ by <a href="https://resemble.ai" target="_blank"><img width="100" alt="resemble-logo-horizontal" src="https://github.com/user-attachments/assets/35cf756b-3506-4943-9c72-c05ddfa4e525" /></a>
+## Tech Stack
 
-We're excited to introduce Chatterbox, [Resemble AI's](https://resemble.ai) first production-grade open source TTS model. Licensed under MIT, Chatterbox has been benchmarked against leading closed-source systems like ElevenLabs, and is consistently preferred in side-by-side evaluations.
+- **Python**
+- **PyTorch**
+- **Chatterbox TTS**
+- **Torchaudio**
+- **CUDA**
+- **Perth Watermarker**
 
-Whether you're working on memes, videos, games, or AI agents, Chatterbox brings your content to life. It's also the first open source TTS model to support **emotion exaggeration control**, a powerful feature that makes your voices stand out. Try it now on our [Hugging Face Gradio app.](https://huggingface.co/spaces/ResembleAI/Chatterbox)
+## How It Works
 
-If you like the model but need to scale or tune it for higher accuracy, check out our competitively priced TTS service (<a href="https://resemble.ai">link</a>). It delivers reliable performance with ultra-low latency of sub 200ms—ideal for production use in agents, applications, or interactive media.
+The application takes text as input and passes it through the Chatterbox TTS model to generate an audio waveform.
 
-# Key Details
-- SoTA zeroshot TTS
-- 0.5B Llama backbone
-- Unique exaggeration/intensity control
-- Ultra-stable with alignment-informed inference
-- Trained on 0.5M hours of cleaned data
-- Watermarked outputs
-- Easy voice conversion script
-- [Outperforms ElevenLabs](https://podonos.com/resembleai/chatterbox)
+For voice-conditioned generation, an audio sample can also be provided as a reference.
 
-# Tips
-- **General Use (TTS and Voice Agents):**
-  - The default settings (`exaggeration=0.5`, `cfg_weight=0.5`) work well for most prompts.
-  - If the reference speaker has a fast speaking style, lowering `cfg_weight` to around `0.3` can improve pacing.
+```text
+Text Input
+    ↓
+Chatterbox TTS Model
+    ↓
+Speech Generation
+    ↓
+WAV Audio Output
 
-- **Expressive or Dramatic Speech:**
-  - Try lower `cfg_weight` values (e.g. `~0.3`) and increase `exaggeration` to around `0.7` or higher.
-  - Higher `exaggeration` tends to speed up speech; reducing `cfg_weight` helps compensate with slower, more deliberate pacing.
+With a reference voice:
 
+Text + Reference Voice
+          ↓
+    Chatterbox TTS
+          ↓
+   Generated Speech
+          ↓
+       WAV File
+Installation
 
-# Installation
-```shell
+Install the required package:
+
 pip install chatterbox-tts
-```
 
-Alternatively, you can install from source:
-```shell
-# conda create -yn chatterbox python=3.11
-# conda activate chatterbox
+Or install Chatterbox from source:
 
 git clone https://github.com/resemble-ai/chatterbox.git
 cd chatterbox
 pip install -e .
-```
-We developed and tested Chatterbox on Python 3.11 on Debain 11 OS; the versions of the dependencies are pinned in `pyproject.toml` to ensure consistency. You can modify the code or dependencies in this installation mode.
 
+Python 3.11 is recommended.
 
-# Usage
-```python
+Usage
 import torchaudio as ta
 from chatterbox.tts import ChatterboxTTS
 
 model = ChatterboxTTS.from_pretrained(device="cuda")
 
-text = "Ezreal and Jinx teamed up with Ahri, Yasuo, and Teemo to take down the enemy's Nexus in an epic late-game pentakill."
+text = "Hello, this is an example of AI-generated speech."
+
 wav = model.generate(text)
-ta.save("test-1.wav", wav, model.sr)
 
-# If you want to synthesize with a different voice, specify the audio prompt
-AUDIO_PROMPT_PATH = "YOUR_FILE.wav"
-wav = model.generate(text, audio_prompt_path=AUDIO_PROMPT_PATH)
-ta.save("test-2.wav", wav, model.sr)
-```
-See `example_tts.py` and `example_vc.py` for more examples.
+ta.save("output.wav", wav, model.sr)
+Voice-Conditioned Generation
 
-# Supported Lanugage
-Currenlty only English.
+A reference audio file can be provided to generate speech using a different voice:
 
-# Acknowledgements
-- [Cosyvoice](https://github.com/FunAudioLLM/CosyVoice)
-- [Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning)
-- [HiFT-GAN](https://github.com/yl4579/HiFTNet)
-- [Llama 3](https://github.com/meta-llama/llama3)
-- [S3Tokenizer](https://github.com/xingchensong/S3Tokenizer)
+import torchaudio as ta
+from chatterbox.tts import ChatterboxTTS
 
-# Built-in PerTh Watermarking for Responsible AI
+model = ChatterboxTTS.from_pretrained(device="cuda")
 
-Every audio file generated by Chatterbox includes [Resemble AI's Perth (Perceptual Threshold) Watermarker](https://github.com/resemble-ai/perth) - imperceptible neural watermarks that survive MP3 compression, audio editing, and common manipulations while maintaining nearly 100% detection accuracy.
+text = "This example uses a reference voice."
 
+audio_prompt = "reference.wav"
 
-## Watermark extraction
+wav = model.generate(
+    text,
+    audio_prompt_path=audio_prompt
+)
 
-You can look for the watermark using the following script.
+ta.save("voice_output.wav", wav, model.sr)
+Example Use Cases
 
-```python
-import perth
-import librosa
+This project can be used for:
 
-AUDIO_PATH = "YOUR_FILE.wav"
+AI voice applications
+Voice-based assistants
+Audio content generation
+Conversational AI prototypes
+Accessibility applications
+Interactive media
+AI audio experimentation
+Project Structure
+.
+├── example_tts.py
+├── example_vc.py
+├── requirements.txt
+└── README.md
+Responsible AI
 
-# Load the watermarked audio
-watermarked_audio, sr = librosa.load(AUDIO_PATH, sr=None)
+Generated audio from Chatterbox includes watermarking designed to help identify AI-generated speech.
 
-# Initialize watermarker (same as used for embedding)
-watermarker = perth.PerthImplicitWatermarker()
+This project is intended for responsible experimentation and development with synthetic audio. Do not use generated voices to impersonate people, deceive others, or create harmful content.
 
-# Extract watermark
-watermark = watermarker.get_watermark(watermarked_audio, sample_rate=sr)
-print(f"Extracted watermark: {watermark}")
-# Output: 0.0 (no watermark) or 1.0 (watermarked)
-```
+Acknowledgements
 
+This project uses the open-source Chatterbox TTS model developed by Resemble AI.
 
-# Official Discord
+The project also builds upon several open-source components:
 
-👋 Join us on [Discord](https://discord.gg/rJq9cRJBJ6) and let's build something awesome together!
+Chatterbox
+CosyVoice
+Real-Time-Voice-Cloning
+HiFT-GAN
+Llama 3
+S3Tokenizer
+Perth Watermarker
+License
 
-# Disclaimer
-Don't use this model to do bad things. Prompts are sourced from freely available data on the internet.
+This project uses and builds upon open-source components. Please refer to the respective upstream repositories for their individual license terms.
